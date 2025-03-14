@@ -1,0 +1,19 @@
+# Ignore virtual environment
+.venv/
+
+# Ignore specific model file
+
+data/*.txt
+data/model2_fold_0.txt
+data/model2_fold_1.txt
+data/model2_fold_2.txt
+data/model2_fold_3.txt
+data/model2_fold_4.txt
+
+data/*.csv
+data/accepted_2007_to_2018Q4.csv
+data/rejected_2007_to_2018Q4.csv
+
+backup.py
+
+data/*.joblib
