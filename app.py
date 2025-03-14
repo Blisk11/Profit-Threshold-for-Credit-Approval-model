@@ -132,7 +132,7 @@ def plot_confusion_matrix_v1(conf_matrix, title):
     #plt.gca().get_xticklabels()[1].set_color('red')   
     
     return fig
-
+st.write('')
 # Plot confusion matrices
 fig_accuracy = plot_confusion_matrix_v1(accuracy_conf_matrix, "Test Confusion Matrix with Accuracy threshold")
 fig_precision = plot_confusion_matrix_v1(precision_conf_matrix, "Test Confusion Matrix with Precision threshold")
@@ -357,8 +357,6 @@ with col2:
 thresholds = np.linspace(0, 1, 100)
 train_profit_sums = [y_train_combined[train_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
 test_profit_sums = [y_test_combined[test_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
-# Calculate the Net Profit/Loss for each threshold
-profit_sums = [(t, y_test_combined[test_predictions <= t]['net_profit_loss'].sum()) for t in thresholds]
 
 # Create the line plots
 fig, ax = plt.subplots(1, 2, figsize=(14, 6))
@@ -410,10 +408,35 @@ for axis in ax:
 
 st.pyplot(fig)
 # Display the results
-st.caption("""
-#### You should be able to beat my *Profit Threshold*, but we can see that we outperform the ROC-AUC method by wide margin.
-Let's see how the different thresholds affect the number of approved loans the expected returns and the reduction in delinquencies.
- """)
+
+custom_threshold_returns = y_test_combined[test_predictions <= custom_threshold]['net_profit_loss'].sum()
+PROFIT_threshold_returns = y_test_combined[test_predictions <= PROFIT_threshold]['net_profit_loss'].sum()
+
+value = custom_threshold_returns - PROFIT_threshold_returns
+delta = custom_threshold_returns / PROFIT_threshold_returns
+lost_profit_AUC = test_results_df.loc['AUC threshold']['Lost Profits (%)']
+
+# Format the value with color based on positivity/negativity
+
+if y_test_combined[test_predictions <= custom_threshold]['net_profit_loss'].sum() < y_test_combined[test_predictions <= PROFIT_threshold]['net_profit_loss'].sum():
+# Display the caption with dynamic value insertion
+    st.caption(f"""
+        ### As you can see, the lost profits associated with the AUC threshold are substantial <span style='color:red'>{lost_profit_AUC}</span>.
+        #### Move the slider on the left to beat my *Profit Threshold*, look for the highest point on the right lineplot.
+    """, unsafe_allow_html=True)
+else:
+    st.caption("""
+    #### Congragulations, let's see how much more money you made :dollar:.
+    """)
+    col1, col2 = st.columns([1, 2])  # Create two equal-width columns for the tables
+    with col1:
+        st.metric(label = 'ROI Threshold VS Custom Threshold', value=f"${value:,.2f}", delta=f"{(delta - 1) * 100:.2f}%", border = True)
+    st.caption("""
+        #### You can go back up to see how much better you did than the AUC threshold.
+        """)
+
+st.markdown("<br>", unsafe_allow_html=True)
+st.write("Let's see how the different thresholds affect the number of approved loans the expected returns and the reduction in delinquencies.")
 # Calculate confusion matrices for different thresholds
 def compare_performance( threshold_name, threshold):
     # Make predictions using current threshold
@@ -462,10 +485,14 @@ st.markdown("""
 ### Conclusion
 This analysis showcases a novel approach on a common problem and demonstrates that it is critical to always keep in mind the business application of our machine learning models.
 
-### Data Source
-The data used in this analysis is sourced from [Kaggle's Lending Club dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club). The main focus of this project is to highlight the _Profit threshold_.
-
 ### Considerations and comments:
 - **Market conditions**: The data spans 9 years including the subprime mortgage crisis, considering macroeconomic conditions, knowing how Lending Club determines their interest rates would be a necessary step.
-- **Model-Induced Data Shift**: This solution does not solve Model-Induced Data Shift, but it does not increase it either. As we can see, the number of loans approved is higher than the AUC threshold.
+- **Model-Induced Data Shift**: We did not use the available refused loans for this project. This solution does not solve Model-Induced Data Shift, but I don't think it increases it's impact.
+
+### Data Source
+The data used in this analysis is sourced from [Kaggle's Lending Club dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club). The main focus of this project is to highlight the _Profit threshold_ a lot of optimisations are still possible.
+
+### Github Link Source
+Want fork this project? You can have a look at the notebook used to create the model and data, as well as the app. [GitHub Repo](https://github.com/Blisk11/Profit-Threshold-for-Credit-Approval-model).
+            
 """)
