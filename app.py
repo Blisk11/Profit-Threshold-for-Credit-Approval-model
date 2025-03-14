@@ -55,11 +55,47 @@ st.set_page_config(
 import joblib
 import pandas as pd
 import numpy as np
-from sklearn.metrics import confusion_matrix, roc_curve
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
+
+# replace sklearn.metrics
+def confusion_matrix(y_true, y_pred):
+    # Initialize the counts
+    tn, fp, fn, tp = 0, 0, 0, 0
+    
+    # Loop through the true and predicted labels
+    for true, pred in zip(y_true, y_pred):
+        if true == 0 and pred == 0:
+            tn += 1  # True Negative
+        elif true == 0 and pred == 1:
+            fp += 1  # False Positive
+        elif true == 1 and pred == 0:
+            fn += 1  # False Negative
+        elif true == 1 and pred == 1:
+            tp += 1  # True Positive
+            
+    return np.array([[tn, fp], [fn, tp]])
+
+def roc_curve(y_true, y_prob):
+    # Sort the probabilities and corresponding true values
+    thresholds = np.arange(0.0, 1.1, 0.1)
+    tpr = []
+    fpr = []
+    
+    for threshold in thresholds:
+        # Apply the threshold to get binary predictions
+        y_pred = [1 if prob >= threshold else 0 for prob in y_prob]
+        
+        # Compute confusion matrix elements
+        cm = confusion_matrix(y_true, y_pred)
+        tn, fp, fn, tp = cm.ravel()
+        
+        # Calculate TPR and FPR
+        tpr.append(tp / (tp + fn) if (tp + fn) > 0 else 0)
+        fpr.append(fp / (fp + tn) if (fp + tn) > 0 else 0)
+    
+    return fpr, tpr, thresholds
 
 # Load the saved test data
 data = joblib.load('data/data2.joblib')
