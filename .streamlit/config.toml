@@ -1,34 +1,7 @@
 [theme]
-# Background colors
-primaryColor = "#0052FF"  # Alan's bright blue
-backgroundColor = "#FFFFFF"  # Clean white background
-secondaryBackgroundColor = "#F5F7FA"  # Light gray for panels
-
-# Text and typography
-textColor = "#1A1B1E"  # Near black for main text
-font = "Inter"  # Modern, clean font used by Alan
-
-# Custom CSS for font family fallbacks
-[client]
-toolbarMode = "minimal"
-customCSS = """
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-* {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-feature-settings: 'kern' 1;
-    -webkit-font-smoothing: antialiased;
-}
-"""
-
-[server]
-enableCORS = false  # For development
-enableXsrfProtection = false  # For development
-
-[browser]
-gatherUsageStats = false  # Privacy-focused
-
-[deprecation]
-showfileUploaderEncoding = false  # Clean UI
-
-[global]
-developmentMode = false  # Production ready
+base="light"
+primaryColor="#615ef3" 
+backgroundColor="#ffffff"  # White background
+secondaryBackgroundColor="#fffcf8"  
+textColor="#524754"  # Dark grey text
+font="verdana"

@@ -225,7 +225,7 @@ precision_idx = np.abs(thresholds - PRECISION_threshold).argmin()
 
 ax.plot(fpr[roi_idx], tpr[roi_idx], 'ro', label=f'ROI Threshold ({PROFIT_threshold:.3f})')
 ax.plot(fpr[roc_idx], tpr[roc_idx], 'go', label=f'AUC Threshold ({AUC_threshold:.3f})')
-ax.plot(fpr[custom_idx], tpr[custom_idx], 'bo', label=f'Custom Threshold ({custom_threshold:.3f})')
+ax.plot(fpr[custom_idx], tpr[custom_idx], 'o', color='#615ef3', label=f'Custom Threshold ({custom_threshold:.3f})')
 ax.plot(fpr[accuracy_idx], tpr[accuracy_idx], 'yo', label=f'Accuracy Threshold ({ACCURACY_threshold:.3f})')
 ax.plot(fpr[precision_idx], tpr[precision_idx], 'mo', label=f'Precision Threshold ({PRECISION_threshold:.3f})')
 
@@ -424,7 +424,7 @@ with st.sidebar:
         <style>
         .katex-html {
             text-align: left;
-            font-size: 14px;
+            font-size: 15px;
         }
         </style>''',
         unsafe_allow_html=True
