@@ -1,7 +1,7 @@
 import streamlit as st
 # Update the page config
 st.set_page_config(
-    page_title="Maximizing Profits in Loan Default Prediction 💸", 
+    page_title="Maximizing Profitability in Credit Approval Models 💸", 
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -58,6 +58,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.colors import LinearSegmentedColormap
 
 # replace sklearn.metrics
 def confusion_matrix(y_true, y_pred):
@@ -125,7 +126,7 @@ st.sidebar.markdown("""
 </span>
 """, unsafe_allow_html=True)
 
-st.markdown("### Maximizing Profitability in Credit Approval Models: Prioritizing ROI Over Sensitivity and Specificity 💰")
+st.markdown("""### Maximizing Profitability in Credit Approval Models: Prioritizing ROI Over Sensitivity and Specificity 💰""")
 # Description of Standard Credit Risk Assessment
 st.markdown("""
 #### The Data Science Rite of Passage: Unbalanced Classification Models 📉
@@ -390,7 +391,7 @@ with col2:
 
 
 # Calculate the Net Profit/Loss for each threshold
-thresholds = np.linspace(0, 1, 100)
+thresholds = np.linspace(0, 1, 200)
 train_profit_sums = [y_train_combined[train_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
 test_profit_sums = [y_test_combined[test_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
 
@@ -404,7 +405,7 @@ ax[0].set_xlabel('Threshold')
 ax[0].set_ylabel('Profit $')
 ax[0].axvline(PROFIT_threshold, color='green', linestyle='--', label='Profit threshold')
 ax[0].axvline(AUC_threshold, color='red', linestyle='--', label='AUC threshold')
-ax[0].axvline(custom_threshold, color='#0052ff',linestyle= '-.', linewidth=2.5, label='Custom Threshold')
+ax[0].axvline(custom_threshold, color='#615ef3',linestyle= '-.', linewidth=2.5, label='Custom Threshold')
 ax[0].legend()
 fig.subplots_adjust(wspace=.3)  # Adjust the width space between the subplots
 # Test data plot
@@ -414,7 +415,7 @@ ax[1].set_xlabel('Threshold')
 ax[1].set_ylabel('Profit $')
 ax[1].axvline(PROFIT_threshold, color='green', linestyle='--', label='Profit threshold')
 ax[1].axvline(AUC_threshold, color='red', linestyle='--', label='AUC threshold')
-ax[1].axvline(custom_threshold, color='#0052ff', linestyle= '-.', linewidth=2.5, label='Custom Threshold')
+ax[1].axvline(custom_threshold, color='#615ef3', linestyle= '-.', linewidth=2.5, label='Custom Threshold')
 ax[1].legend()
 
 # Add formulas to the sidebar
@@ -430,8 +431,7 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    st.latex(r"\text{ROI} = \frac{\text{Net Profit}}{\text{Investment}} \times 100")
-    st.latex(r"\text{Weighted ROI} = \frac{\sum (\text{ROI} \times \text{Investment})}{\sum \text{Investment}}")
+    st.latex(r"\text{ROI} = \frac{\text{Net Profit}}{\text{Investment}}")
     st.latex(r"\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}")
     st.latex(r"\text{Precision} = \frac{TP}{TP + FP}")
     st.latex(r"\text{AUC} = \int_{0}^{1} TPR(FPR) \, d(FPR)")
@@ -483,7 +483,7 @@ def compare_performance( threshold_name, threshold):
     approved_count = np.sum(approved_mask)
     filtered_data = y_add_test.loc[y_test[approved_mask].index]
     total_profits = filtered_data['net_profit_loss'].sum()
-    weight_avg_roi = (filtered_data['roi_percentage'] * filtered_data['total_pymnt']).sum() / filtered_data['total_pymnt'].sum()
+    weight_avg_roi = filtered_data['net_profit_loss'].sum() / filtered_data['loan_amnt'].sum()
     
     # Calculate default rate for approved loans
     actual_defaults = y_test[approved_mask].sum()
@@ -494,14 +494,17 @@ def compare_performance( threshold_name, threshold):
     st.markdown(f"##### {threshold_name} Threshold ({threshold:.1%}) Analysis")
     st.markdown(f"**Approved Loans**: {approved_count:,} ({approved_count/len(y_test):.1%} of total)")
     st.markdown(f"**Total Profits**: ${total_profits / 1e6:.1f}M")
-    st.markdown(f"**Weighted Average ROI**: {weight_avg_roi:.1f}%")
-    st.markdown(f"**Original Delinquency Rate (%)**: {original_default_rate * 100:.1f} %")
-    st.markdown(f"**New Delinquency Rate (%)**: {default_rate* 100:.1f} %")
-    
+    st.markdown(f"**ROI**: {weight_avg_roi:.1%}")
+    st.markdown(f"**Original Delinquency Rate**: {original_default_rate * 100:.1f} %")
+    st.markdown(f"**New Delinquency Rate**: {default_rate* 100:.1f} %")
+
+    # Create a custom colormap
+    custom_cmap = LinearSegmentedColormap.from_list('custom_cmap', ['#e1e0fe', '#615ef3'])
+
     # Calculate confusion matrix
     cm = confusion_matrix(y_test, test_binary_predictions)
     fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Repaid', 'Delinquencies'], yticklabels=['Repaid', 'Delinquencies'], ax=ax)
+    sns.heatmap(cm, annot=True, fmt='d', cmap= custom_cmap, xticklabels=['Repaid', 'Delinquencies'], yticklabels=['Repaid', 'Delinquencies'], ax=ax)
     ax.set_xlabel('Predicted')
     ax.set_ylabel('Actual')
     ax.set_title(f'Confusion Matrix {threshold_name} Threshold')
@@ -523,7 +526,7 @@ This analysis showcases a novel approach on a common problem and demonstrates th
 
 ### Considerations and comments:
 - **Market conditions**: The data spans 9 years including the subprime mortgage crisis, considering macroeconomic conditions, knowing how Lending Club determines their interest rates would be a necessary step.
-- **Model-Induced Data Shift**: We did not use the available refused loans for this project. This solution does not solve Model-Induced Data Shift, but I don't think it increases it's impact.
+- **Model-Induced Data Shift**: We did not use the available refused loans data for this project. This profit threshold does not solve _Model-Induced Data Shift_, but I don't think it increases it's impact.
 
 ### Data Source
 The data used in this analysis is sourced from [Kaggle's Lending Club dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club). The main focus of this project is to highlight the _Profit threshold_ a lot of optimisations are still possible.
