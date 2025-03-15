@@ -1,4 +1,5 @@
 import streamlit as st
+import psutil
 # Update the page config
 st.set_page_config(
     page_title="Maximizing Profitability in Credit Approval Models 💸", 
@@ -80,7 +81,7 @@ def confusion_matrix(y_true, y_pred):
 
 def roc_curve(y_true, y_prob):
     # Sort the probabilities and corresponding true values
-    thresholds = np.arange(0.0, 1.1, 0.1)
+    thresholds = np.linspace(0, 1, 250)
     tpr = []
     fpr = []
     
@@ -98,8 +99,12 @@ def roc_curve(y_true, y_prob):
     
     return fpr, tpr, thresholds
 
-# Load the saved test data
-data = joblib.load('data/data2.joblib')
+# Cache the loading of data
+@st.cache_data
+def load_data():
+    return joblib.load('data/data2.joblib')
+
+data = load_data()
 y_test = data['y_test']
 y_add_test = data['y_add_test']
 y_train = data['y_train']
@@ -107,12 +112,22 @@ y_add_train = data['y_add_train']
 test_predictions = data['test_predictions']
 train_predictions = data['train_predictions']
 PROFIT_threshold = data['PROFIT_threshold']
+test_PROFIT_threshold = data['test_PROFIT_threshold']
 AUC_threshold = data['AUC_threshold']
 ACCURACY_threshold = data['ACCURACY_threshold']
 PRECISION_threshold = data['PRECISION_threshold']
 
-# Set up the Streamlit app
-# At the start of your file, after the imports, add custom CSS
+# Function to get current memory usage
+def get_memory_usage():
+    process = psutil.Process()
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 ** 2)  # Convert bytes to MB
+
+# Display memory usage in the sidebar
+st.sidebar.markdown("### Memory Usage")
+memory_usage = get_memory_usage()
+st.sidebar.markdown(f"**Current Memory Usage:** {memory_usage:.2f} MB")
+
 # Add a sidebar with definitions
 st.sidebar.title("Definitions 📚")
 st.sidebar.markdown("""
@@ -133,9 +148,14 @@ st.markdown("""
 The credit default problem is a classic because the often used metrics like accuracy and precision scores often give very poor results.
 """)
 
-# Calculate confusion matrix for accuracy model
-accuracy_conf_matrix = confusion_matrix(y_test, test_predictions >= ACCURACY_threshold)
-precision_conf_matrix = confusion_matrix(y_test, test_predictions >= PRECISION_threshold)
+# Cache the computation of confusion matrices
+@st.cache_data
+def compute_confusion_matrices(y_test, test_predictions, ACCURACY_threshold, PRECISION_threshold):
+    accuracy_conf_matrix = confusion_matrix(y_test, test_predictions >= ACCURACY_threshold)
+    precision_conf_matrix = confusion_matrix(y_test, test_predictions >= PRECISION_threshold)
+    return accuracy_conf_matrix, precision_conf_matrix
+
+accuracy_conf_matrix, precision_conf_matrix = compute_confusion_matrices(y_test, test_predictions, ACCURACY_threshold, PRECISION_threshold)
 st.write('')
 def plot_confusion_matrix_v1(conf_matrix, title):
     fig = plt.figure()
@@ -199,21 +219,40 @@ But instead of doing a binary classification model, we have the output as a conf
 """)
 
 col1, col2, col3 = st.columns([1, 2, 1])  # Adjust column widths to center the slider
+# Initialize session state for the slider
+if 'custom_threshold' not in st.session_state:
+    st.session_state.custom_threshold = 0.45
+
 # Create a slider for selecting a custom threshold
 with st.sidebar:
     st.markdown("---")
-    custom_threshold = st.slider(
-        "[Adjust Custom Threshold for Comparison](#profit-method)",
-        min_value=float(min(test_predictions.min(), train_predictions.min())),
-        max_value=float(max(test_predictions.max(), train_predictions.max())),
-        value=float(PROFIT_threshold + 0.1),
+    custom_threshold = st.number_input(
+        "[Adjust **Custom** Threshold for Comparison](#profit-method)",
+        min_value= float(0) , 
+        max_value= float(1), 
+        value= 0.45,
+        step = 0.05,
         format="%.2f",
-        step=0.01
+       # on_change = update_custom_threshold,
     )
+    st.write(round(test_PROFIT_threshold, 2), 'to beat my profit threshold')
 
+# Update session state if slider value changes
+if custom_threshold != st.session_state.custom_threshold:
+    st.session_state.custom_threshold = custom_threshold
+    st.rerun()  # Updated from st.experimental_rerun()
+
+# Use the updated custom_threshold for calculations
+custom_threshold = st.session_state.custom_threshold
+
+# Cache the computation of ROC curve
+@st.cache_data
+def compute_roc_curve(y_test, test_predictions):
+    return roc_curve(y_test, test_predictions)
+
+fpr, tpr, thresholds = compute_roc_curve(y_test, test_predictions)
 # Plot ROC curve with both thresholds marked
 fig, ax = plt.subplots(figsize=(8, 4))
-fpr, tpr, thresholds = roc_curve(y_test, test_predictions)
 ax.plot(fpr, tpr, label='ROC Curve')
 ax.plot([0, 1], [0, 1], 'k--', label='Random')
 
@@ -390,10 +429,14 @@ with col2:
     st.table(test_results_df_styled)
 
 
-# Calculate the Net Profit/Loss for each threshold
-thresholds = np.linspace(0, 1, 200)
-train_profit_sums = [y_train_combined[train_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
-test_profit_sums = [y_test_combined[test_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
+# Cache the computation of profit sums
+@st.cache_data
+def compute_profit_sums(y_train_combined, y_test_combined, train_predictions, test_predictions, thresholds):
+    train_profit_sums = [y_train_combined[train_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
+    test_profit_sums = [y_test_combined[test_predictions <= t]['net_profit_loss'].sum() for t in thresholds]
+    return train_profit_sums, test_profit_sums
+
+train_profit_sums, test_profit_sums = compute_profit_sums(y_train_combined, y_test_combined, train_predictions, test_predictions, thresholds)
 
 # Create the line plots
 fig, ax = plt.subplots(1, 2, figsize=(14, 6))
@@ -454,12 +497,15 @@ lost_profit_AUC = test_results_df.loc['AUC threshold']['Lost Profits (%)']
 
 # Format the value with color based on positivity/negativity
 
-if y_test_combined[test_predictions <= custom_threshold]['net_profit_loss'].sum() < y_test_combined[test_predictions <= PROFIT_threshold]['net_profit_loss'].sum():
+if custom_threshold_returns < PROFIT_threshold_returns:
 # Display the caption with dynamic value insertion
     st.caption(f"""
         ### As you can see, the lost profits associated with the AUC threshold are substantial <span style='color:red'>{lost_profit_AUC}</span>.
         #### Move the slider on the left to beat my *Profit Threshold*, look for the highest point on the right lineplot.
     """, unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 2])  # Create two equal-width columns for the tables
+    with col1:
+        st.metric(label = 'ROI Threshold VS Custom Threshold', value=f"${value:,.2f}", delta=f"{(delta - 1) * 100:.2f}%", border = True)
 else:
     st.caption("""
     #### Congragulations, let's see how much more money you made :dollar:.
