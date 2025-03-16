@@ -114,10 +114,11 @@ def plot_confusion_matrix_v1(conf_matrix, title):
                 fmt='', cbar=False, cmap=None, center=0, mask=False, square=True, linewidths=1,
                 annot_kws={'size': 20, 'color': 'black'}, linecolor='black')
     
-    heatmap = plt.gca().collections[0]
-    for path, color in zip(heatmap.get_paths(), colors.flatten()):
-        patch = plt.matplotlib.patches.PathPatch(path, facecolor=color)
-        plt.gca().add_patch(patch)
+    heatmap = plt.gca().collections
+    if heatmap:  # Check if heatmap is created
+        for path, color in zip(heatmap[0].get_paths(), colors.flatten()):
+            patch = plt.matplotlib.patches.PathPatch(path, facecolor=color)
+            plt.gca().add_patch(patch)
     
     plt.title(title)
     plt.ylabel('Actual Event', rotation=0)
@@ -184,7 +185,7 @@ def plot_distribution_of_profits_losses(y_combined):
     for axis in ax.flatten():
         axis.xaxis.set_major_locator(plt.MaxNLocator(5))
         if axis in [ax[0, 0], ax[0, 1]]:
-            axis.set_xticklabels([f"${x:,.0f}" for x in axis.get_xticks()])
+            axis.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"${x:,.0f}"))
         else:
             axis.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x/100:.0%}'))
     
@@ -291,10 +292,10 @@ def main():
             min_value= float(0) , 
             max_value= float(1), 
             value= 0.45,
-            step = 0.05,
+            step = 0.02,
             format="%.2f",
         )
-        st.write(round(test_PROFIT_threshold, 2), 'to beat my profit threshold')
+        st.write('Enter', round(test_PROFIT_threshold, 2), 'to beat my profit threshold')
     
     if custom_threshold != st.session_state.custom_threshold:
         st.session_state.custom_threshold = custom_threshold
