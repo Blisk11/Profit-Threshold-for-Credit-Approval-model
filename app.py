@@ -480,15 +480,15 @@ def main():
     
     st.markdown("""
     ### Conclusion
-    This analysis showcases a novel approach on a common problem and demonstrates that it is critical to always keep in mind the business application of our machine learning models.
-                 I reduced the data in this app to maintain the requirements of Streamlit Free tier. But the more data you loaded, the closer the training profit threshold gets to the optimum value on the test data. 
-                I have seen the profit threshold outperform the AUC one by more that 25%. 
+    This analysis presents a novel approach to a common problem and highlights the importance of considering the business application of machine learning models. 
+    To comply with Streamlit's Free tier limits, I reduced the dataset. However, increasing the data volume brings the training profit threshold closer to its optimal value on test data. 
+    In some cases, I have observed the profit threshold outperforming the AUC-based one by more than 25%.
     
     ### Considerations and comments:
-    - **Market conditions**: The data spans 9 years including the subprime mortgage crisis, considering macroeconomic conditions, knowing how Lending Club determines their interest rates would be a necessary step.
-    - **Model-Induced Data Shift**: We did not use the available refused loans data for this project. This profit threshold does not solve _Model-Induced Data Shift_, but I don't think it increases it's impact.
-    - **Changing Y target**: I played around with the idea of changing the y value to ROI or profit/loss value but in my opinion we lose the interpretability of the model and the distribution of the predictions get compressed.
-    
+    - **Market conditions**: The data spans 9 years, including the subprime mortgage crisis. Considering macroeconomic conditions and understanding how Lending Club determines its interest rates would be a necessary step.  
+    - **Model-Induced Data Shift**: We did not use the available refused loans data for this project. This profit threshold does not solve _Model-Induced Data Shift_, but I don't think it increases its impact.  
+    - **Changing Y target**: I experimented with changing the y value to ROI or profit/loss, but in my opinion, this reduces the model's interpretability and compresses the distribution of predictions.  
+
     ### Data Source
     The data used in this analysis is sourced from [Kaggle's Lending Club dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club). The main focus of this project is to highlight the _Profit threshold_ a lot of optimisations are still possible.
     
