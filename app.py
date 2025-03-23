@@ -255,6 +255,12 @@ def main():
     add_definitions()
     
     st.markdown("""### Maximizing Profitability in Credit Approval Models: Prioritizing ROI Over Sensitivity and Specificity 💰""")
+    st.markdown("""
+    The following app is a demonstration of my master's thesis in which I showed examples of the importance of focusing on the business problem.
+    In this project, I emphasize the significance of optimizing credit approval models not just for accuracy or precision, but for maximizing profitability.
+    By adjusting the thresholds for loan approvals, we can significantly increase the return on investment while managing the risk of defaults.
+    This approach ensures that the model aligns with the financial goals of the business, ultimately leading to better decision-making and higher profits.
+    """)
     st.markdown("""#### The Data Science Rite of Passage: Unbalanced Classification Models 📉""")
     st.markdown("""The credit default problem is a classic because the often used metrics like accuracy and precision scores often give very poor results.""")
     
@@ -307,7 +313,7 @@ def main():
     st.pyplot(plot_roc_curve(fpr, tpr, thresholds, PROFIT_threshold, AUC_threshold, ACCURACY_threshold, PRECISION_threshold, custom_threshold))
     
     st.markdown("""#### Why is there a better way? 🤔""")
-    st.markdown("""Traditional credit models focus on minimizing defaults, **each delinquency does not yield the same loss, and each repaid loan does not generate the same return.**""")
+    st.markdown("""In traditional credit models, the issue lies in treating each default and each repaid loan as having the same impact, as you can see below, that is clearly not the case.""")
     
     y_train_renamed = y_train.replace({0: 'Repaid', 1: 'Delinquencies'})
     y_train_combined = pd.concat([y_add_train, y_train_renamed], axis=1)
@@ -320,8 +326,7 @@ def main():
     
     st.markdown("""#### Profit Threshold 💸:""")
     st.markdown("""While determining our threshold for denial and approval, we can calculate, on our training data, the threshold that maximizes our profit.
-    **This drastically increases our profit.**""")
-    st.caption("Use the custom slider on the left to view the impact")
+    **This drastically increases our expected profits on our test data.**""")
     
     train_results_df = pd.DataFrame({
         'Threshold': ['No Threshold', f"{PROFIT_threshold:.0%}", f"{AUC_threshold:.0%}", f"{custom_threshold:.0%}"],
@@ -446,7 +451,7 @@ def main():
     if custom_threshold_returns < PROFIT_threshold_returns:
         st.caption(f"""
             ### As you can see, the lost profits associated with the AUC threshold are substantial <span style='color:red'>{lost_profit_AUC}</span>.
-            #### Move the slider on the left to beat my *Profit Threshold*, look for the highest point on the right lineplot.
+            #### Move the slider on the left to beat my *Profit Threshold*, try to aim for the highest point on the right lineplot.
         """, unsafe_allow_html=True)
         col1, col2 = st.columns([1, 2])
         with col1:
@@ -476,12 +481,13 @@ def main():
     st.markdown("""
     ### Conclusion
     This analysis showcases a novel approach on a common problem and demonstrates that it is critical to always keep in mind the business application of our machine learning models.
-                 I reduced the data in this app to maintain the requirements of Streamlit Free tier. But with larger data loaded, my profit threshold yielded more than 20% better than AUC.
-                 Also, the more data is loaded, the % of lost profits than the optimal on test becomes almost ennixistant.
+                 I reduced the data in this app to maintain the requirements of Streamlit Free tier. But the more data you loaded, the closer the training profit threshold gets to the optimum value on the test data. 
+                I have seen the profit threshold outperform the AUC one by more that 25%. 
     
     ### Considerations and comments:
     - **Market conditions**: The data spans 9 years including the subprime mortgage crisis, considering macroeconomic conditions, knowing how Lending Club determines their interest rates would be a necessary step.
     - **Model-Induced Data Shift**: We did not use the available refused loans data for this project. This profit threshold does not solve _Model-Induced Data Shift_, but I don't think it increases it's impact.
+    - **Changing Y target**: I played around with the idea of changing the y value to ROI or profit/loss value but in my opinion we lose the interpretability of the model and the distribution of the predictions get compressed.
     
     ### Data Source
     The data used in this analysis is sourced from [Kaggle's Lending Club dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club). The main focus of this project is to highlight the _Profit threshold_ a lot of optimisations are still possible.
