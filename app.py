@@ -283,7 +283,9 @@ def main():
     st.subheader('Traditional Threshold vs New Profit Method 📊', anchor='profit-method')
     st.markdown("""The classic method and the metric I used to train the model is called [Area Under the Curve](https://www.geeksforgeeks.org/auc-roc-curve/).
     Compared to the precision and accuracy, AUC-ROC aims does a better job of denying bad loans, even if that means denying good ones.
-    But instead of doing a binary classification model, we have the output as a confidence interval, and customise our threshold for approval/ denial.
+    Instead of a binary classification model, the output is a confidence interval, allowing for a customized threshold for approval or denial. 
+    The confidence level ranges between 0 and 1, where 1 indicates the model predicts the applicant is highly likely to default on the loan, and 0 indicates they are likely to repay. 
+    The threshold is set to deny all applicants whose confidence score exceeds the specified limit.
     **Use the slider in the sidebar to change the custom threshold.**""")
     
     col1, col2, col3 = st.columns([1, 2, 1])
