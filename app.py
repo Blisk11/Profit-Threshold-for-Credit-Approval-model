@@ -291,7 +291,6 @@ def main():
         st.session_state.custom_threshold = 0.45
     
     with st.sidebar:
-        st.markdown("---")
         custom_threshold = st.number_input(
             "[Adjust **Custom** Threshold for Comparison](#profit-method)",
             min_value= float(0) , 
@@ -301,15 +300,16 @@ def main():
             format="%.2f",
         )
         st.write('Enter', round(test_PROFIT_threshold, 2), 'to beat my profit threshold')
+        st.markdown("---")
     
     if custom_threshold != st.session_state.custom_threshold:
         st.session_state.custom_threshold = custom_threshold
         st.rerun()
     
     custom_threshold = st.session_state.custom_threshold
-
-    add_definitions()
     
+    add_definitions()
+
     fpr, tpr, thresholds = compute_roc_curve(y_test, test_predictions)
     st.pyplot(plot_roc_curve(fpr, tpr, thresholds, PROFIT_threshold, AUC_threshold, ACCURACY_threshold, PRECISION_threshold, custom_threshold))
     
