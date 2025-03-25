@@ -252,7 +252,6 @@ def main():
     PRECISION_threshold = data['PRECISION_threshold']
     
     display_memory_usage()
-    add_definitions()
     
     st.markdown("""### Maximizing Profitability in Credit Approval Models: Prioritizing ROI Over Sensitivity and Specificity 💰""")
     st.markdown("""
@@ -308,6 +307,8 @@ def main():
         st.rerun()
     
     custom_threshold = st.session_state.custom_threshold
+
+    add_definitions()
     
     fpr, tpr, thresholds = compute_roc_curve(y_test, test_predictions)
     st.pyplot(plot_roc_curve(fpr, tpr, thresholds, PROFIT_threshold, AUC_threshold, ACCURACY_threshold, PRECISION_threshold, custom_threshold))
