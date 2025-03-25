@@ -420,17 +420,17 @@ def main():
     ax[1].legend()
     
     with st.sidebar:
-        st.markdown("### Formulas")
+        st.write("")
+        st.write("### Formulas:")
         st.markdown('''
             <style>
             .katex-html {
                 text-align: left;
-                font-size: 15px;
+                font-size: 16px;
             }
             </style>''',
             unsafe_allow_html=True
         )
-    
         st.latex(r"\text{ROI} = \frac{\text{Net Profit}}{\text{Investment}}")
         st.latex(r"\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}")
         st.latex(r"\text{Precision} = \frac{TP}{TP + FP}")
