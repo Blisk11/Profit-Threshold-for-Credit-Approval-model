@@ -255,10 +255,8 @@ def main():
     
     st.markdown("""### Maximizing Profitability in Credit Approval Models: Prioritizing ROI Over Sensitivity and Specificity 💰""")
     st.markdown("""
-    The following app is a demonstration of my master's thesis in which I showed examples of the importance of focusing on the business problem.
-    In this project, I emphasize the significance of optimizing credit approval models not just for accuracy or precision, but for maximizing profitability.
-    By adjusting the thresholds for loan approvals, we can significantly increase the return on investment while managing the risk of defaults.
-    This approach ensures that the model aligns with the financial goals of the business, ultimately leading to better decision-making and higher profits.
+    The following app demonstrates my master's thesis, showcasing the importance of focusing on the business problem.
+    In this project, I highlight the difference between setting the decision threshold based on a custom metric that **maximizes profitability** versus traditional statistical metrics.
     """)
     st.markdown("""#### The Data Science Rite of Passage: Unbalanced Classification Models 📉""")
     st.markdown("""The credit default problem is a classic because the often used metrics like accuracy and precision scores often give very poor results.""")
@@ -281,8 +279,8 @@ def main():
     
     st.write("")
     st.subheader('Traditional Threshold vs New Profit Method 📊', anchor='profit-method')
-    st.markdown("""The classic method and the metric I used to train the model is called [Area Under the Curve](https://www.geeksforgeeks.org/auc-roc-curve/).
-    Compared to the precision and accuracy, AUC-ROC aims does a better job of denying bad loans, even if that means denying good ones.
+    st.markdown("""The classic method we are tought and the metric I used to train the model is called [Area Under the Curve](https://www.geeksforgeeks.org/auc-roc-curve/).
+    Compared to the precision and accuracy, AUC-ROC aims does a better job of denying bad loans, even if that means denying good ones also.
     Instead of a binary classification model, the output is a confidence interval, allowing for a customized threshold for approval or denial. 
     The confidence level ranges between 0 and 1, where 1 indicates the model predicts the applicant is highly likely to default on the loan, and 0 indicates they are likely to repay. 
     The threshold is set to deny all applicants whose confidence score exceeds the specified limit.
@@ -316,7 +314,7 @@ def main():
     st.pyplot(plot_roc_curve(fpr, tpr, thresholds, PROFIT_threshold, AUC_threshold, ACCURACY_threshold, PRECISION_threshold, custom_threshold))
     
     st.markdown("""#### Why is there a better way? 🤔""")
-    st.markdown("""In traditional credit models, the issue lies in treating each default and each repaid loan as having the same impact, as you can see below, that is clearly not the case.""")
+    st.markdown("""In traditional credit classification models, the issue lies in treating each default and each repaid loan as having the same impact, as you can see below, that is clearly not the case.""")
     
     y_train_renamed = y_train.replace({0: 'Repaid', 1: 'Delinquencies'})
     y_train_combined = pd.concat([y_add_train, y_train_renamed], axis=1)
