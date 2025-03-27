@@ -148,7 +148,7 @@ def plot_roc_curve(fpr, tpr, thresholds, PROFIT_threshold, AUC_threshold, ACCURA
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'{y:.0%}'))
     ax.set_xlabel('False Positive Rate')
     ax.set_ylabel('True Positive Rate')
-    ax.set_title('ROC Curve with Different Thresholds')
+    ax.set_title('ROC-AUC Curve with Different Thresholds')
     ax.legend()
     ax.grid(True)
     return fig
@@ -254,9 +254,11 @@ def main():
     display_memory_usage()
     
     st.markdown("""### Maximizing Profitability in Credit Approval Models: Prioritizing ROI Over Sensitivity and Specificity 💰""")
-    st.markdown("""
-    The following app demonstrates my master's thesis, showcasing the importance of focusing on the business problem.
-    In this project, I highlight the difference between setting the decision threshold based on a custom metric that **maximizes profitability** versus traditional statistical metrics.
+    st.markdown("""    
+    This app is an excerpt from my master's thesis on the importance of business context and the value of simplicity in building data science tools. \n
+    In this project, I use a well-known problem **credit approval modeling** to demonstrate a unique optimization technique that, as far as I know, has not been widely explored.
+    Instead of relying on traditional statistical metrics, I set the decision threshold based on a **custom metric that maximizes profitability**.  
+    This simple yet powerful tweak significantly improves the model’s real-world impact, aligning it more closely with business goals.  
     """)
     st.markdown("""#### The Data Science Rite of Passage: Unbalanced Classification Models 📉""")
     st.markdown("""The credit default problem is a classic because the often used metrics like accuracy and precision scores often give very poor results.""")
@@ -279,12 +281,14 @@ def main():
     
     st.write("")
     st.subheader('Traditional Threshold vs New Profit Method 📊', anchor='profit-method')
-    st.markdown("""The classic method we are tought and the metric I used to train the model is called [Area Under the Curve](https://www.geeksforgeeks.org/auc-roc-curve/).
-    Compared to the precision and accuracy, AUC-ROC aims does a better job of denying bad loans, even if that means denying good ones also.
-    Instead of a binary classification model, the output is a confidence interval, allowing for a customized threshold for approval or denial. 
-    The confidence level ranges between 0 and 1, where 1 indicates the model predicts the applicant is highly likely to default on the loan, and 0 indicates they are likely to repay. 
+    st.markdown("""
+    The classic method we are tought and the metric I used to train the model is called [Area Under the Curve](https://www.geeksforgeeks.org/auc-roc-curve/).
+    Compared to the precision and accuracy, AUC-ROC aims does a better job of denying bad loans (False Positives), even if that means denying good ones also (True Positives).\n
+    Instead of a binary classification model, we can output a _confidence interval_, allowing for a customized threshold for approval or denial. 
+    The confidence interval ranges between 0 and 1, where 1 indicates the model predicts the applicant is highly likely to default on the loan, and 0 indicates they are likely to repay. 
     The threshold is set to deny all applicants whose confidence score exceeds the specified limit.
-    **Use the slider in the sidebar to change the custom threshold.**""")
+    **Use the slider in the sidebar to change the custom threshold and see where it lands on the curve.**"""
+    )
     
     col1, col2, col3 = st.columns([1, 2, 1])
     if 'custom_threshold' not in st.session_state:
@@ -312,9 +316,10 @@ def main():
 
     fpr, tpr, thresholds = compute_roc_curve(y_test, test_predictions)
     st.pyplot(plot_roc_curve(fpr, tpr, thresholds, PROFIT_threshold, AUC_threshold, ACCURACY_threshold, PRECISION_threshold, custom_threshold))
-    
+    #st.caption("The ROC-AUC metric aims to minimize the ammount of loans giving to people who will default (False Positives), even if that means accepting less good loans (True Positives).")
+
     st.markdown("""#### Why is there a better way? 🤔""")
-    st.markdown("""In traditional credit classification models, the issue lies in treating each default and each repaid loan as having the same impact, as you can see below, that is clearly not the case.""")
+    st.markdown("""In traditional credit classification models, the problem is that each default and each repaid loan are treated as having the same impact. However, in reality, their financial consequences are very different.""")
     
     y_train_renamed = y_train.replace({0: 'Repaid', 1: 'Delinquencies'})
     y_train_combined = pd.concat([y_add_train, y_train_renamed], axis=1)
@@ -325,10 +330,11 @@ def main():
     
     st.pyplot(plot_distribution_of_profits_losses(y_combined))
     
+    st.caption("Each **True Positive** and **True Negative** has a different impact, and the cost of missed opportunities varies between **False Positives** and **False Negatives**.")
+    
     st.markdown("""#### Profit Threshold 💸:""")
     st.markdown("""While determining our threshold for denial and approval, we can calculate, on our training data, the threshold that maximizes our profit.
     **This drastically increases our expected profits on our test data.**""")
-    
     train_results_df = pd.DataFrame({
         'Threshold': ['No Threshold', f"{PROFIT_threshold:.0%}", f"{AUC_threshold:.0%}", f"{custom_threshold:.0%}"],
         'Approved Loans (%)': [
