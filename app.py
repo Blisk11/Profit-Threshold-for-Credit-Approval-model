@@ -283,7 +283,7 @@ def main():
     st.subheader('Traditional Threshold vs New Profit Method 📊', anchor='profit-method')
     st.markdown("""
     The classic method we are tought and the metric I used to train the model is called [Area Under the Curve](https://www.geeksforgeeks.org/auc-roc-curve/).
-    Compared to the precision and accuracy, AUC-ROC aims does a better job of denying bad loans (False Positives), even if that means denying good ones also (True Positives).\n
+    Compared to the precision and accuracy, AUC-ROC does a better job of denying bad loans (False Positives), even if that means denying good ones also (True Positives).\n
     Instead of a binary classification model, we can output a _confidence interval_, allowing for a customized threshold for approval or denial. 
     The confidence interval ranges between 0 and 1, where 1 indicates the model predicts the applicant is highly likely to default on the loan, and 0 indicates they are likely to repay. 
     The threshold is set to deny all applicants whose confidence score exceeds the specified limit.
@@ -330,7 +330,7 @@ def main():
     
     st.pyplot(plot_distribution_of_profits_losses(y_combined))
     
-    st.caption("Each **True Positive** and **True Negative** has a different impact, and the cost of missed opportunities varies between **False Positives** and **False Negatives**.")
+    st.caption("Each **True Positive** and **True Negative** has a different impact, and the cost or benifit of missed opportunities varies for each individual **False Positives** and **False Negatives**.")
     
     st.markdown("""#### Profit Threshold 💸:""")
     st.markdown("""While determining our threshold for denial and approval, we can calculate, on our training data, the threshold that maximizes our profit.
@@ -456,7 +456,7 @@ def main():
     lost_profit_AUC = test_results_df.loc['AUC threshold']['Lost Profits (%)']
     
     if custom_threshold_returns < PROFIT_threshold_returns:
-        st.caption(f"""
+        st.write(f"""
             ### As you can see, the lost profits associated with the AUC threshold are substantial <span style='color:red'>{lost_profit_AUC}</span>.
             #### Move the slider on the left to beat my *Profit Threshold*, try to aim for the highest point on the right lineplot.
         """, unsafe_allow_html=True)
@@ -485,13 +485,11 @@ def main():
     with col5:
         compare_performance('Custom', custom_threshold, y_test, test_predictions, y_add_test)
     
-    st.markdown("""
-    ### Conclusion
+    st.markdown("""   
+    ### Considerations and comments:
     This analysis presents a novel approach to a common problem and highlights the importance of considering the business application of machine learning models. 
     To comply with Streamlit's Free tier limits, I reduced the dataset. However, increasing the data volume brings the training profit threshold closer to its optimal value on test data. 
     In some cases, I have observed the profit threshold outperforming the AUC-based one by more than 25%.
-    
-    ### Considerations and comments:
     - **Market conditions**: The data spans 9 years, including the subprime mortgage crisis. Considering macroeconomic conditions and understanding how Lending Club determines its interest rates would be a necessary step.  
     - **Model-Induced Data Shift**: We did not use the available refused loans data for this project. This profit threshold does not solve _Model-Induced Data Shift_, but I don't think it increases its impact.  
     - **Changing Y target**: I experimented with changing the y value to ROI or profit/loss, but in my opinion, this reduces the model's interpretability and compresses the distribution of predictions.  
